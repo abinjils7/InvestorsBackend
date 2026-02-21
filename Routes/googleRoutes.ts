@@ -54,10 +54,10 @@ router.get(
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      res.redirect("http://localhost:5173/home");
+      res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/home`);
     } catch (error) {
       console.log(error);
-      res.redirect("http://localhost:5173/login?error=true");
+      res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=true`);
     }
   },
 );

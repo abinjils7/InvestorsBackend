@@ -24,7 +24,7 @@ export const createPitch = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "No video file uploaded" });
         }
 
-        const pitchVideoUrl = req.file.path.replace(/\\/g, "/"); // Normalize path for Windows
+        const pitchVideoUrl = req.file.path; // Cloudinary returns a full URL
 
         const newPitch = new Pitch({
             fromUserId,

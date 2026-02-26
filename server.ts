@@ -18,17 +18,25 @@ app.use(cookieParser());
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.CLIENT_URL?.replace(/\/$/, ""),
+  process.env.CLIENT_URL?.trim().replace(/\/$/, ""),
+  "https://investors-frontend.vercel.app",
+  "https://investors-frontend-git-main-abinjils7s-projects.vercel.app",
   "http://localhost:5173",
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-        callback(null, true);
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = origin.trim().replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some(ao => ao === normalizedOrigin) ||
+        normalizedOrigin.endsWith(".vercel.app");
+
+      if (isAllowed) {
+        callback(null, origin); // Reflect exactly what the browser sent
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
     credentials: true,
@@ -99,10 +107,14 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-        callback(null, true);
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.trim().replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some(ao => ao === normalizedOrigin) ||
+        normalizedOrigin.endsWith(".vercel.app");
+      if (isAllowed) {
+        callback(null, origin);
       } else {
-        callback(null, false); // Socket.io handles failures differently
+        callback(null, false);
       }
     },
     credentials: true,
